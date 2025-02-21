@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Food Ordering</title>
+<script src="https://cdn.tailwindcss.com">
+</script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: "#8B5CF6",
+        secondary: "#10B981",
+        dark: {
+          DEFAULT: "#111827",
+          lighter: "#1F2937",
+          lightest: "#374151",
+        },
+      },
+      borderRadius: {
+        none: "0px",
+        sm: "4px",
+        DEFAULT: "8px",
+        md: "12px",
+        lg: "16px",
+        xl: "20px",
+        "2xl": "24px",
+        "3xl": "32px",
+        full: "9999px",
+        button: "8px",
+      },
+    },
+  },
+};
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js">
+</script>
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+.menu-item:hover .add-to-cart { opacity: 1; }
+.dropdown {
+opacity: 0;
+visibility: hidden;
+transition: all 0.3s ease;
+}
+.dropdown.active {
+opacity: 1;
+visibility: visible;
+}
+@keyframes fadeInUp {
+from {
+opacity: 0;
+transform: translateY(20px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+@keyframes slideInRight {
+from {
+opacity: 0;
+transform: translateX(20px);
+}
+to {
+opacity: 1;
+transform: translateX(0);
+}
+}
+.menu-item {
+animation: fadeInUp 0.6s ease forwards;
+animation-delay: calc(var(--animation-order) * 0.1s);
+}
+.category-item {
+animation: slideInRight 0.6s ease forwards;
+animation-delay: calc(var(--animation-order) * 0.1s);
+}
+.hover-scale {
+transition: transform 0.3s ease;
+}
+.hover-scale:hover {
+transform: scale(1.02);
+}
+</style>
+</head>
+<body class="bg-dark min-h-screen text-gray-200">
+<nav class="bg-dark-lighter shadow-sm fixed w-full z-50 border-b border-gray-800">
+<div class="max-w-7xl mx-auto px-4">
+<div class="flex justify-between h-16">
+<div class="flex items-center">
+<img src="https://static.readdy.ai/image/859162267fa9bc8f2451023bd0dea63b/29570fc9e2ebe242f5ad938a75814b88.png" alt="QLess Logo" class="h-8">
+<div class="hidden md:flex items-center space-x-8 ml-10">
+<a href="#" class="text-gray-300 hover:text-primary px-3 py-2 text-sm font-medium">Home</a>
+<a href="#" class="text-gray-300 hover:text-primary px-3 py-2 text-sm font-medium">Menu</a>
+<a href="#" class="text-gray-300 hover:text-primary px-3 py-2 text-sm font-medium">Orders</a>
+<a href="#" class="text-gray-300 hover:text-primary px-3 py-2 text-sm font-medium">Leaderboard</a>
+</div>
+</div>
+<div class="flex items-center space-x-4">
+<button id="notificationBtn" class="relative p-2 text-gray-600 hover:text-primary">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-notification-line text-xl"></i>
+</div>
+<span class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">2</span>
+</button>
+<div id="notificationDropdown" class="dropdown absolute right-0 top-16 w-80 bg-white rounded shadow-lg py-2 z-50">
+<div class="p-4 border-b border-gray-100">
+<div class="flex items-center space-x-3">
+<i class="ri-printer-line text-primary"></i>
+<p class="text-sm text-gray-700">Your print is ready to pick up</p>
+</div>
+</div>
+<div class="p-4">
+<div class="flex items-center space-x-3">
+<i class="ri-restaurant-line text-primary"></i>
+<p class="text-sm text-gray-700">Your food is ready to pick up</p>
+</div>
+</div>
+</div>
+<div class="flex items-center space-x-4">
+<button id="cartBtn" class="relative p-2 text-gray-600 hover:text-primary">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-shopping-cart-line text-xl"></i>
+</div>
+<span class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+</button>
+<div class="relative">
+<button id="profileBtn" class="flex items-center space-x-2 p-2">
+<div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+<i class="ri-user-line text-gray-600"></i>
+</div>
+</button>
+<div id="profileDropdown" class="dropdown absolute right-0 mt-2 w-48 bg-white rounded shadow-lg py-2">
+<a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+<a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+<a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<main class="pt-16">
+<div class="relative bg-dark-lighter">
+<div class="max-w-7xl mx-auto px-4 py-16">
+<div class="grid md:grid-cols-2 gap-8 items-center">
+<div>
+<h1 class="text-4xl font-bold text-white mb-4">Order Delicious Food <br>Right to Your Table</h1>
+<p class="text-lg text-gray-400 mb-8">Pre-order your favorite meals and track your spending with our smart ordering system.</p>
+<button class="bg-primary text-white px-8 py-3 rounded-button text-lg font-medium hover:bg-primary/90">Order Now</button>
+</div>
+<div class="relative h-96">
+<img src="https://public.readdy.ai/ai/img_res/c76d50e33b1785bfeaeb2baad5041b71.jpg"
+class="absolute inset-0 w-full h-full object-cover rounded-lg shadow-lg"
+alt="Food Banner">
+</div>
+</div>
+</div>
+</div>
+<section class="py-12 bg-dark">
+<div class="max-w-7xl mx-auto px-4">
+<h2 class="text-2xl font-bold text-white mb-8">Popular Categories</h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+<div class="bg-dark-lighter rounded-lg shadow-sm p-6 text-center hover:shadow-md transition-shadow border border-gray-800 category-item hover-scale" style="--animation-order: 1">
+<div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+<i class="ri-restaurant-line text-3xl text-primary"></i>
+</div>
+<h3 class="font-medium">Main Course</h3>
+</div>
+<div class="bg-dark-lighter rounded-lg shadow-sm p-6 text-center hover:shadow-md transition-shadow border border-gray-800 category-item hover-scale" style="--animation-order: 2">
+<div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+<i class="ri-cake-line text-3xl text-primary"></i>
+</div>
+<h3 class="font-medium text-white">Desserts</h3>
+</div>
+<div class="bg-dark-lighter rounded-lg shadow-sm p-6 text-center hover:shadow-md transition-shadow border border-gray-800 category-item hover-scale" style="--animation-order: 3">
+<div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+<i class="ri-cup-line text-3xl text-primary"></i>
+</div>
+<h3 class="font-medium text-white">Beverages</h3>
+</div>
+<div class="bg-dark-lighter rounded-lg shadow-sm p-6 text-center hover:shadow-md transition-shadow border border-gray-800 category-item hover-scale" style="--animation-order: 4">
+<div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+<i class="ri-leaf-line text-3xl text-primary"></i>
+</div>
+<h3 class="font-medium text-white">Healthy</h3>
+</div>
+</div>
+</div>
+</section>
+<section class="py-12 bg-dark-lighter">
+<div class="max-w-7xl mx-auto px-4">
+<div class="flex justify-between items-center mb-8">
+<h2 class="text-2xl font-bold text-white">Today's Special</h2>
+<div class="flex space-x-2">
+<button class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary">All</button>
+<button class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary">Veg</button>
+<button class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary">Non-Veg</button>
+</div>
+</div>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="bg-dark-lightest rounded-lg shadow-sm overflow-hidden menu-item group border border-gray-800 hover-scale" style="--animation-order: 1">
+<div class="relative h-48">
+<img src="https://public.readdy.ai/ai/img_res/52f57c59e9599eda5f86abb6b94ab769.jpg"
+class="absolute inset-0 w-full h-full object-cover"
+alt="Pasta Dish">
+<button class="add-to-cart absolute top-4 right-4 bg-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<i class="ri-add-line text-primary"></i>
+</button>
+</div>
+<div class="p-4">
+<h3 class="font-medium text-white">Spaghetti Carbonara</h3>
+<p class="text-sm text-gray-400 mt-1">Classic Italian pasta with eggs and pancetta</p>
+<div class="flex justify-between items-center mt-4">
+<span class="font-medium text-gray-900">$12.99</span>
+<div class="flex items-center">
+<i class="ri-star-fill text-yellow-400"></i>
+<span class="ml-1 text-sm text-gray-600">4.8</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-dark-lightest rounded-lg shadow-sm overflow-hidden menu-item group border border-gray-800 hover-scale" style="--animation-order: 1">
+<div class="relative h-48">
+<img src="https://public.readdy.ai/ai/img_res/b2c08735e163cc6be2003cad164cda74.jpg"
+class="absolute inset-0 w-full h-full object-cover"
+alt="Grilled Chicken">
+<button class="add-to-cart absolute top-4 right-4 bg-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<i class="ri-add-line text-primary"></i>
+</button>
+</div>
+<div class="p-4">
+<h3 class="font-medium text-gray-900">Grilled Chicken</h3>
+<p class="text-sm text-gray-600 mt-1">Herb-marinated chicken with vegetables</p>
+<div class="flex justify-between items-center mt-4">
+<span class="font-medium text-gray-900">$15.99</span>
+<div class="flex items-center">
+<i class="ri-star-fill text-yellow-400"></i>
+<span class="ml-1 text-sm text-gray-600">4.9</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-dark-lightest rounded-lg shadow-sm overflow-hidden menu-item group border border-gray-800 hover-scale" style="--animation-order: 1">
+<div class="relative h-48">
+<img src="https://public.readdy.ai/ai/img_res/379f6be2bcd915b5f218086eb4533da2.jpg"
+class="absolute inset-0 w-full h-full object-cover"
+alt="Garden Salad">
+<button class="add-to-cart absolute top-4 right-4 bg-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<i class="ri-add-line text-primary"></i>
+</button>
+</div>
+<div class="p-4">
+<h3 class="font-medium text-gray-900">Garden Fresh Salad</h3>
+<p class="text-sm text-gray-600 mt-1">Mixed greens with balsamic dressing</p>
+<div class="flex justify-between items-center mt-4">
+<span class="font-medium text-gray-900">$8.99</span>
+<div class="flex items-center">
+<i class="ri-star-fill text-yellow-400"></i>
+<span class="ml-1 text-sm text-gray-600">4.7</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-12 bg-dark">
+<div class="max-w-7xl mx-auto px-4">
+<div class="mb-12">
+<h2 class="text-2xl font-bold text-white mb-4">Print Documents</h2>
+<div class="bg-dark-lighter p-6 rounded-lg shadow-sm border border-gray-800">
+<div class="flex flex-col items-center justify-center py-8">
+<div class="w-16 h-16 flex items-center justify-center mb-4">
+<i class="ri-upload-cloud-line text-4xl text-primary"></i>
+</div>
+<label class="relative cursor-pointer">
+<input type="file" class="hidden" id="documentUpload" accept=".pdf,.doc,.docx" multiple>
+<span class="bg-primary text-white px-6 py-3 rounded-button inline-block hover:bg-primary/90">Upload Documents</span>
+</label>
+<p class="text-sm text-gray-400 mt-2">Supported formats: PDF, DOC, DOCX</p>
+</div>
+<div id="uploadedFiles" class="mt-6 space-y-3 hidden">
+</div>
+</div>
+</div>
+<h2 class="text-2xl font-bold text-white mb-8">Spending Analytics</h2>
+<div class="grid md:grid-cols-2 gap-8">
+<div class="bg-dark-lighter p-6 rounded-lg shadow-sm border border-gray-800">
+<h3 class="text-lg font-medium text-white mb-4">Monthly Spending</h3>
+<div id="spendingChart" class="h-64"></div>
+</div>
+<div class="bg-dark-lighter p-6 rounded-lg shadow-sm border border-gray-800">
+<h3 class="text-lg font-medium text-white mb-4">Order History</h3>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-3 bg-dark rounded-lg">
+<div class="flex items-center">
+<img src="https://public.readdy.ai/ai/img_res/e159678278613605301f9fa97376b999.jpg"
+class="w-12 h-12 rounded-lg object-cover" alt="Spaghetti">
+<div class="ml-3">
+<p class="font-medium text-white">Spaghetti Carbonara</p>
+<p class="text-sm text-gray-400">Feb 21, 2025 • 12:30 PM</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-medium text-primary">$12.99</p>
+<span class="text-xs px-2 py-1 bg-green-900/30 text-green-400 rounded-full">Completed</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 bg-dark rounded-lg">
+<div class="flex items-center">
+<img src="https://public.readdy.ai/ai/img_res/65552590518f66d7b62ccc7319adceed.jpg"
+class="w-12 h-12 rounded-lg object-cover" alt="Chicken">
+<div class="ml-3">
+<p class="font-medium text-white">Grilled Chicken</p>
+<p class="text-sm text-gray-400">Feb 20, 2025 • 6:45 PM</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-medium text-primary">$15.99</p>
+<span class="text-xs px-2 py-1 bg-green-900/30 text-green-400 rounded-full">Completed</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 bg-dark rounded-lg">
+<div class="flex items-center">
+<img src="https://public.readdy.ai/ai/img_res/32c135f8f3b2b9a5f4ab70e598bbb0d4.jpg"
+class="w-12 h-12 rounded-lg object-cover" alt="Salad">
+<div class="ml-3">
+<p class="font-medium text-white">Garden Fresh Salad</p>
+<p class="text-sm text-gray-400">Feb 20, 2025 • 1:15 PM</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-medium text-primary">$8.99</p>
+<span class="text-xs px-2 py-1 bg-green-900/30 text-green-400 rounded-full">Completed</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<div id="cartModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+<div class="absolute right-0 top-0 h-full w-96 bg-dark-lighter shadow-lg border-l border-gray-800">
+<div class="p-4 border-b">
+<div class="flex justify-between items-center">
+<h3 class="text-lg font-medium">Your Cart</h3>
+<button id="closeCart" class="text-gray-400 hover:text-gray-500">
+<i class="ri-close-line text-xl"></i>
+</button>
+</div>
+</div>
+<div class="p-4 space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<img src="https://readdy.ai/api/search-image?query=small portion of spaghetti carbonara on white plate&width=80&height=80&orientation=squarish"
+class="w-16 h-16 rounded object-cover"
+alt="Spaghetti">
+<div class="ml-4">
+<h4 class="font-medium">Spaghetti Carbonara</h4>
+<p class="text-sm text-gray-600">$12.99</p>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<button class="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center">-</button>
+<span class="text-sm">1</span>
+<button class="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center">+</button>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<img src="https://public.readdy.ai/ai/img_res/9965b722ad9befc9c97de07be29d755b.jpg"
+class="w-16 h-16 rounded object-cover"
+alt="Salad">
+<div class="ml-4">
+<h4 class="font-medium">Garden Fresh Salad</h4>
+<p class="text-sm text-gray-600">$8.99</p>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<button class="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center">-</button>
+<span class="text-sm">1</span>
+<button class="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center">+</button>
+</div>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 right-0 p-4 bg-white border-t">
+<div class="flex justify-between mb-4">
+<span class="font-medium">Total</span>
+<span class="font-medium">$21.98</span>
+</div>
+<button class="w-full bg-primary text-white py-3 rounded-button font-medium">Checkout</button>
+</div>
+</div>
+</div>
+<script>
+const documentUpload = document.getElementById("documentUpload");
+const uploadedFiles = document.getElementById("uploadedFiles");
+documentUpload.addEventListener("change", (e) => {
+  const files = Array.from(e.target.files);
+  uploadedFiles.innerHTML = "";
+  uploadedFiles.classList.remove("hidden");
+
+  files.forEach((file, index) => {
+    const fileDiv = document.createElement("div");
+    fileDiv.className =
+      "flex items-center justify-between p-3 bg-dark rounded-lg";
+    fileDiv.innerHTML = `
+            <div class="flex items-center">
+                <div class="w-10 h-10 flex items-center justify-center bg-primary/10 rounded">
+                    <i class="ri-file-text-line text-primary"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="font-medium text-white">${file.name}</p>
+                    <p class="text-sm text-gray-400">${(file.size / 1024).toFixed(1)} KB</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button class="print-btn text-sm px-3 py-1 bg-primary/10 text-primary rounded-button hover:bg-primary/20">
+                    Print
+                </button>
+                <button class="remove-btn text-sm px-2 py-1 text-gray-400 hover:text-gray-300">
+                    <i class="ri-close-line"></i>
+                </button>
+            </div>
+        `;
+    const printBtn = fileDiv.querySelector(".print-btn");
+    printBtn.addEventListener("click", () => {
+      const notification = document.createElement("div");
+      notification.className =
+        "fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded shadow-lg z-50";
+      notification.textContent = `Printing ${file.name}...`;
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    });
+    const removeBtn = fileDiv.querySelector(".remove-btn");
+    removeBtn.addEventListener("click", () => {
+      fileDiv.remove();
+      if (uploadedFiles.children.length === 0) {
+        uploadedFiles.classList.add("hidden");
+      }
+    });
+    uploadedFiles.appendChild(fileDiv);
+  });
+});
+const profileBtn = document.getElementById("profileBtn");
+const profileDropdown = document.getElementById("profileDropdown");
+const cartBtn = document.getElementById("cartBtn");
+const cartModal = document.getElementById("cartModal");
+const closeCart = document.getElementById("closeCart");
+const notificationBtn = document.getElementById("notificationBtn");
+const notificationDropdown = document.getElementById("notificationDropdown");
+profileBtn.addEventListener("click", () => {
+  profileDropdown.classList.toggle("active");
+});
+document.addEventListener("click", (e) => {
+  if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+    profileDropdown.classList.remove("active");
+  }
+  if (
+    !notificationBtn.contains(e.target) &&
+    !notificationDropdown.contains(e.target)
+  ) {
+    notificationDropdown.classList.remove("active");
+  }
+});
+notificationBtn.addEventListener("click", () => {
+  notificationDropdown.classList.toggle("active");
+});
+cartBtn.addEventListener("click", () => {
+  cartModal.classList.remove("hidden");
+});
+closeCart.addEventListener("click", () => {
+  cartModal.classList.add("hidden");
+});
+cartModal.addEventListener("click", (e) => {
+  if (e.target === cartModal) {
+    cartModal.classList.add("hidden");
+  }
+});
+const spendingChart = echarts.init(document.getElementById("spendingChart"));
+const option = {
+  animation: false,
+  tooltip: {
+    trigger: "axis",
+    backgroundColor: "rgba(31, 41, 55, 0.9)",
+    borderColor: "#374151",
+    textStyle: {
+      color: "#f3f4f6",
+    },
+  },
+  xAxis: {
+    type: "category",
+    data: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    axisLine: {
+      lineStyle: {
+        color: "#374151",
+      },
+    },
+    axisLabel: {
+      color: "#f3f4f6",
+    },
+  },
+  yAxis: {
+    type: "value",
+    axisLine: {
+      lineStyle: {
+        color: "#374151",
+      },
+    },
+    axisLabel: {
+      color: "#f3f4f6",
+    },
+    splitLine: {
+      lineStyle: {
+        color: "#374151",
+      },
+    },
+  },
+  series: [
+    {
+      data: [150, 230, 224, 218, 135, 147],
+      type: "line",
+      smooth: true,
+      symbol: "none",
+      itemStyle: {
+        color: "rgba(87, 181, 231, 1)",
+      },
+      areaStyle: {
+        color: {
+          type: "linear",
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            {
+              offset: 0,
+              color: "rgba(87, 181, 231, 0.1)",
+            },
+            {
+              offset: 1,
+              color: "rgba(87, 181, 231, 0.02)",
+            },
+          ],
+        },
+      },
+    },
+  ],
+  grid: {
+    top: 20,
+    right: 20,
+    bottom: 20,
+    left: 50,
+  },
+};
+spendingChart.setOption(option);
+window.addEventListener("resize", () => {
+  spendingChart.resize();
+});
+</script>
+</body>
+</html>
