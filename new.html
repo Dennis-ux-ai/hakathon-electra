@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Campus Food Ordering</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#4B7BF5",
+              secondary: "#2D2D44",
+            },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      .dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      min-width: 200px;
+      z-index: 50;
+      }
+      .dropdown.active {
+      display: block;
+      }
+    </style>
+  </head>
+  <body class="bg-white min-h-screen">
+    <nav class="bg-white shadow-sm fixed w-full z-50">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center">
+            <span class="text-2xl font-['Pacifico'] text-primary">logo</span>
+            <div class="hidden md:flex items-center space-x-8 ml-10">
+              <a
+                href="#"
+                class="text-gray-900 hover:text-primary px-3 py-2 text-sm font-medium"
+                >Home</a
+              >
+              <a
+                href="#"
+                class="text-gray-900 hover:text-primary px-3 py-2 text-sm font-medium"
+                >Menu</a
+              >
+              <a
+                href="#"
+                class="text-gray-900 hover:text-primary px-3 py-2 text-sm font-medium"
+                >Orders</a
+              >
+              <a
+                href="#"
+                class="text-gray-900 hover:text-primary px-3 py-2 text-sm font-medium"
+                >Dashboard</a
+              >
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <button class="relative" id="cartBtn">
+              <div class="w-10 h-10 flex items-center justify-center">
+                <i class="ri-shopping-cart-line text-xl"></i>
+              </div>
+              <span
+                class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+                >3</span
+              >
+            </button>
+            <div class="relative" id="profileDropdown">
+              <button class="flex items-center space-x-2" id="profileBtn">
+                <div
+                  class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center"
+                >
+                  <i class="ri-user-line text-xl"></i>
+                </div>
+              </button>
+              <div class="dropdown" id="profileMenu">
+                <div class="py-2">
+                  <a
+                    href="#"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >Profile</a
+                  >
+                  <a
+                    href="#"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >Settings</a
+                  >
+                  <a
+                    href="#"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >Logout</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <main class="pt-16">
+      <section class="bg-white py-12 min-h-screen flex items-center">
+        <div class="max-w-md mx-auto px-4 w-full">
+          <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">Welcome Back</h1>
+            <p class="text-gray-600">
+              Login to access your campus food ordering system
+            </p>
+          </div>
+          <div class="bg-white rounded-lg shadow-lg p-8">
+            <form id="loginForm" class="space-y-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >College ID</label
+                >
+                <input
+                  type="text"
+                  class="w-full px-4 py-2 border rounded-button focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Enter your college ID"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Password</label
+                >
+                <input
+                  type="password"
+                  class="w-full px-4 py-2 border rounded-button focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Enter your password"
+                />
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <label class="flex items-center">
+                  <input
+                    type="checkbox"
+                    class="rounded border-gray-300 text-primary focus:ring-primary mr-2"
+                  />
+                  <span class="text-gray-600">Remember me</span>
+                </label>
+                <a href="#" class="text-primary hover:text-primary/90"
+                  >Forgot password?</a
+                >
+              </div>
+              <button
+                type="submit"
+                class="w-full bg-primary text-white py-3 px-4 rounded-button hover:bg-primary/90 transition-colors !rounded-button whitespace-nowrap text-sm font-medium"
+              >
+                Login
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+      <section class="py-12 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4">
+          <h2 class="text-2xl font-bold text-gray-900 mb-8">Featured Menu</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+              <img
+                src="https://public.readdy.ai/ai/img_res/ed52755f247b301b727eadc6c70d1aa5.jpg"
+                class="w-full h-48 object-cover"
+                alt="Burger"
+              />
+              <div class="p-4">
+                <div class="flex justify-between items-start mb-2">
+                  <h3 class="font-semibold">Classic Cheeseburger</h3>
+                  <span class="text-primary font-medium">$8.99</span>
+                </div>
+                <div class="flex items-center mb-3">
+                  <div class="flex text-yellow-400">
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-half-fill"></i>
+                  </div>
+                  <span class="text-sm text-gray-500 ml-2">(124)</span>
+                </div>
+                <button
+                  class="w-full bg-primary text-white py-2 rounded-button hover:bg-primary/90 transition-colors !rounded-button whitespace-nowrap"
+                >
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+              <img
+                src="https://public.readdy.ai/ai/img_res/528968f0958945c9501ae3058e9cbc34.jpg"
+                class="w-full h-48 object-cover"
+                alt="Salad"
+              />
+              <div class="p-4">
+                <div class="flex justify-between items-start mb-2">
+                  <h3 class="font-semibold">Chicken Caesar Salad</h3>
+                  <span class="text-primary font-medium">$10.99</span>
+                </div>
+                <div class="flex items-center mb-3">
+                  <div class="flex text-yellow-400">
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-line"></i>
+                  </div>
+                  <span class="text-sm text-gray-500 ml-2">(98)</span>
+                </div>
+                <button
+                  class="w-full bg-primary text-white py-2 rounded-button hover:bg-primary/90 transition-colors !rounded-button whitespace-nowrap"
+                >
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+              <img
+                src="https://public.readdy.ai/ai/img_res/15ef099356adbefeb7e1472ef983e929.jpg"
+                class="w-full h-48 object-cover"
+                alt="Pizza"
+              />
+              <div class="p-4">
+                <div class="flex justify-between items-start mb-2">
+                  <h3 class="font-semibold">Margherita Pizza</h3>
+                  <span class="text-primary font-medium">$12.99</span>
+                </div>
+                <div class="flex items-center mb-3">
+                  <div class="flex text-yellow-400">
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-fill"></i>
+                  </div>
+                  <span class="text-sm text-gray-500 ml-2">(156)</span>
+                </div>
+                <button
+                  class="w-full bg-primary text-white py-2 rounded-button hover:bg-primary/90 transition-colors !rounded-button whitespace-nowrap"
+                >
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+              <img
+                src="https://public.readdy.ai/ai/img_res/82b672c03364c574c7d9e14e6dd5e8be.jpg"
+                class="w-full h-48 object-cover"
+                alt="Pasta"
+              />
+              <div class="p-4">
+                <div class="flex justify-between items-start mb-2">
+                  <h3 class="font-semibold">Pasta Carbonara</h3>
+                  <span class="text-primary font-medium">$11.99</span>
+                </div>
+                <div class="flex items-center mb-3">
+                  <div class="flex text-yellow-400">
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-half-fill"></i>
+                  </div>
+                  <span class="text-sm text-gray-500 ml-2">(142)</span>
+                </div>
+                <button
+                  class="w-full bg-primary text-white py-2 rounded-button hover:bg-primary/90 transition-colors !rounded-button whitespace-nowrap"
+                >
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+          <h2 class="text-2xl font-bold text-gray-900 mb-8">
+            Personal Spending Analytics
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <h3 class="text-lg font-semibold mb-4">Monthly Spending</h3>
+              <div id="spendingChart" class="w-full h-[300px]"></div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <h3 class="text-lg font-semibold mb-4">Spending Categories</h3>
+              <div id="categoryChart" class="w-full h-[300px]"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="py-12 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4">
+          <h2 class="text-2xl font-bold text-gray-900 mb-8">Quick Features</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+              <div
+                class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4"
+              >
+                <i class="ri-qr-code-line text-xl text-primary"></i>
+              </div>
+              <h3 class="font-semibold mb-2">QR Code Pickup</h3>
+              <p class="text-gray-600 text-sm">
+                Scan & collect your order quickly at the counter
+              </p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+              <div
+                class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4"
+              >
+                <i class="ri-timer-line text-xl text-primary"></i>
+              </div>
+              <h3 class="font-semibold mb-2">Pre-Order</h3>
+              <p class="text-gray-600 text-sm">
+                Schedule your meals in advance
+              </p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+              <div
+                class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4"
+              >
+                <i class="ri-wallet-3-line text-xl text-primary"></i>
+              </div>
+              <h3 class="font-semibold mb-2">Easy Payment</h3>
+              <p class="text-gray-600 text-sm">
+                Multiple payment options available
+              </p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+              <div
+                class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4"
+              >
+                <i class="ri-line-chart-line text-xl text-primary"></i>
+              </div>
+              <h3 class="font-semibold mb-2">Track Spending</h3>
+              <p class="text-gray-600 text-sm">Monitor your expenses easily</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="bg-white border-t">
+      <div class="max-w-7xl mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <span class="text-2xl font-['Pacifico'] text-primary">logo</span>
+            <p class="mt-4 text-gray-600 text-sm">
+              Your campus food ordering solution.
+            </p>
+          </div>
+          <div>
+            <h4 class="font-semibold mb-4">Quick Links</h4>
+            <ul class="space-y-2 text-gray-600 text-sm">
+              <li><a href="#" class="hover:text-primary">About Us</a></li>
+              <li><a href="#" class="hover:text-primary">Contact</a></li>
+              <li><a href="#" class="hover:text-primary">FAQs</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold mb-4">Legal</h4>
+            <ul class="space-y-2 text-gray-600 text-sm">
+              <li><a href="#" class="hover:text-primary">Privacy Policy</a></li>
+              <li>
+                <a href="#" class="hover:text-primary">Terms of Service</a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold mb-4">Connect</h4>
+            <div class="flex space-x-4">
+              <a
+                href="#"
+                class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors"
+              >
+                <i class="ri-facebook-fill"></i>
+              </a>
+              <a
+                href="#"
+                class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors"
+              >
+                <i class="ri-twitter-fill"></i>
+              </a>
+              <a
+                href="#"
+                class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors"
+              >
+                <i class="ri-instagram-fill"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="mt-8 pt-8 border-t text-center text-gray-600 text-sm">
+          <p>&copy; 2025 Campus Food Ordering. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+    <script>
+      const mockData = {
+        monthlySpending: [
+          { month: "Jan", amount: 180 },
+          { month: "Feb", amount: 220 },
+          { month: "Mar", amount: 165 },
+          { month: "Apr", amount: 195 },
+          { month: "May", amount: 245 },
+          { month: "Jun", amount: 210 },
+        ],
+        categories: [
+          { name: "Main Dishes", value: 450 },
+          { name: "Beverages", value: 200 },
+          { name: "Snacks", value: 150 },
+          { name: "Desserts", value: 100 },
+        ],
+      };
+      const spendingChart = echarts.init(document.getElementById("spendingChart"));
+      const option = {
+        animation: false,
+        tooltip: {
+          trigger: "axis",
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
+          borderColor: "#eee",
+          borderWidth: 1,
+          textStyle: {
+            color: "#1f2937",
+          },
+        },
+        grid: {
+          top: "10%",
+          right: "3%",
+          bottom: "10%",
+          left: "3%",
+          containLabel: true,
+        },
+        xAxis: {
+          type: "category",
+          data: mockData.monthlySpending.map((item) => item.month),
+          axisLine: {
+            lineStyle: {
+              color: "#ddd",
+            },
+          },
+          axisLabel: {
+            color: "#666",
+          },
+        },
+        yAxis: {
+          type: "value",
+          axisLine: {
+            show: false,
+          },
+          axisTick: {
+            show: false,
+          },
+          axisLabel: {
+            color: "#666",
+          },
+          splitLine: {
+            lineStyle: {
+              color: "#eee",
+            },
+          },
+        },
+        series: [
+          {
+            data: mockData.monthlySpending.map((item) => item.amount),
+            type: "line",
+            smooth: true,
+            symbol: "none",
+            lineStyle: {
+              color: "rgba(87, 181, 231, 1)",
+              width: 3,
+            },
+            areaStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                {
+                  offset: 0,
+                  color: "rgba(87, 181, 231, 0.2)",
+                },
+                {
+                  offset: 1,
+                  color: "rgba(87, 181, 231, 0.05)",
+                },
+              ]),
+            },
+          },
+        ],
+      };
+      spendingChart.setOption(option);
+      const categoryChart = echarts.init(document.getElementById("categoryChart"));
+      const categoryOption = {
+        animation: false,
+        tooltip: {
+          trigger: "item",
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
+          borderColor: "#eee",
+          borderWidth: 1,
+          textStyle: {
+            color: "#1f2937",
+          },
+        },
+        series: [
+          {
+            type: "pie",
+            radius: ["40%", "70%"],
+            avoidLabelOverlap: false,
+            itemStyle: {
+              borderRadius: 8,
+              borderColor: "#fff",
+              borderWidth: 2,
+            },
+            label: {
+              show: true,
+              position: "outside",
+              formatter: "{b}: ${c} ({d}%)",
+            },
+            emphasis: {
+              label: {
+                show: true,
+                fontSize: "14",
+                fontWeight: "bold",
+              },
+            },
+            labelLine: {
+              show: true,
+            },
+            data: mockData.categories.map((item) => ({
+              value: item.value,
+              name: item.name,
+              itemStyle: {
+                color:
+                  item.name === "Main Dishes"
+                    ? "rgba(87, 181, 231, 1)"
+                    : item.name === "Beverages"
+                      ? "rgba(141, 211, 199, 1)"
+                      : item.name === "Snacks"
+                        ? "rgba(251, 191, 114, 1)"
+                        : "rgba(252, 141, 98, 1)",
+              },
+            })),
+          },
+        ],
+      };
+      categoryChart.setOption(categoryOption);
+      window.addEventListener("resize", () => {
+        spendingChart.resize();
+        categoryChart.resize();
+      });
+      document.getElementById("profileBtn").addEventListener("click", function () {
+        document.getElementById("profileMenu").classList.toggle("active");
+      });
+      document.addEventListener("click", function (event) {
+        const dropdown = document.getElementById("profileMenu");
+        const profileBtn = document.getElementById("profileBtn");
+        if (!profileBtn.contains(event.target) && !dropdown.contains(event.target)) {
+          dropdown.classList.remove("active");
+        }
+      });
+      const mainContent = document.querySelectorAll(
+        "main > section:not(:first-child)",
+      );
+      mainContent.forEach((section) => (section.style.display = "none"));
+      document.getElementById("loginForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const notification = document.createElement("div");
+        notification.className =
+          "fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-transform duration-300 translate-y-0";
+        notification.textContent = "Login successful!";
+        document.body.appendChild(notification);
+        setTimeout(() => {
+          notification.style.transform = "translateY(-100%)";
+          setTimeout(() => {
+            notification.remove();
+            document.querySelector("main > section:first-child").style.display =
+              "none";
+            mainContent.forEach((section) => (section.style.display = "block"));
+          }, 300);
+        }, 2000);
+      });
+    </script>
+  </body>
+</html>
