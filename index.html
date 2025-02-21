@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>College Canteen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      .backdrop-blur { backdrop-filter: blur(8px); }
+      .menu-item:hover .menu-actions { opacity: 1; }
+      .menu-actions { opacity: 0; transition: opacity 0.3s; }
+    </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#4F46E5",
+              secondary: "#F59E0B",
+            },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <nav
+      class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur z-50 shadow-sm"
+    >
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center">
+            <a href="#" class="text-2xl font-['Pacifico'] text-primary">logo</a>
+          </div>
+          <div class="hidden md:flex items-center space-x-8">
+            <a href="#" class="text-gray-700 hover:text-primary">Menu</a>
+            <a href="#" class="text-gray-700 hover:text-primary">Orders</a>
+            <button
+              id="cartBtn"
+              class="relative text-gray-700 hover:text-primary"
+            >
+              <div class="w-6 h-6 flex items-center justify-center">
+                <i class="ri-shopping-cart-line"></i>
+              </div>
+              <span
+                class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-4 h-4 flex items-center justify-center"
+                >0</span
+              >
+            </button>
+            <button
+              id="profileBtn"
+              class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center"
+            >
+              <i class="ri-user-line text-gray-600"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="pt-16">
+      <section class="relative h-[500px] overflow-hidden">
+        <div class="absolute inset-0">
+          <img
+            src="https://public.readdy.ai/ai/img_res/ecfd22cc676db095212f8cdb42cee597.jpg"
+            class="w-full h-full object-cover"
+            alt="Hero"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-white/90 to-white/30"
+          ></div>
+        </div>
+        <div class="relative max-w-7xl mx-auto px-4 h-full flex items-center">
+          <div class="max-w-lg">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">
+              Delicious Food at Your Fingertips
+            </h1>
+            <p class="text-lg text-gray-600 mb-8">
+              Order from our diverse menu and enjoy fresh, hot meals right at
+              your college campus.
+            </p>
+            <button
+              class="bg-primary text-white px-8 py-3 rounded-button text-lg font-medium hover:bg-primary/90 transition-colors"
+            >
+              Start Ordering
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+          <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-bold text-gray-900">Today's Menu</h2>
+            <div class="relative">
+              <input
+                type="text"
+                placeholder="Search dishes..."
+                class="pl-10 pr-4 py-2 rounded-button bg-gray-100 border-none text-sm"
+              />
+              <div
+                class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center"
+              >
+                <i class="ri-search-line text-gray-400"></i>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            id="menuContainer"
+          ></div>
+        </div>
+      </section>
+    </main>
+
+    <div
+      id="cart"
+      class="fixed top-16 right-0 bottom-0 w-96 bg-white shadow-lg transform translate-x-full transition-transform duration-300 z-40"
+    >
+      <div class="p-4 border-b">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-semibold">Your Cart</h3>
+          <button
+            id="closeCart"
+            class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700"
+          >
+            <i class="ri-close-line"></i>
+          </button>
+        </div>
+      </div>
+      <div class="p-4 flex-1 overflow-auto" id="cartItems"></div>
+      <div class="p-4 border-t bg-gray-50">
+        <div class="flex justify-between mb-4">
+          <span class="font-medium">Total</span>
+          <span class="font-semibold" id="cartTotal">$0.00</span>
+        </div>
+        <button
+          class="w-full bg-primary text-white py-3 rounded-button font-medium hover:bg-primary/90 transition-colors"
+        >
+          Proceed to Checkout
+        </button>
+      </div>
+    </div>
+
+    <script>
+      const menuItems = [
+        {
+          id: 1,
+          name: "Cheese Sandwich",
+          price: 5.99,
+          image:
+            "https://public.readdy.ai/ai/img_res/3c2e13c665a5fc91451ab5ab815f947a.jpg",
+          description: "Classic grilled cheese with premium cheddar",
+        },
+        {
+          id: 2,
+          name: "Veggie Burger",
+          price: 7.99,
+          image:
+            "https://public.readdy.ai/ai/img_res/b152b592b4c92c32aab330998e06a2bb.jpg",
+          description: "Plant-based patty with fresh toppings",
+        },
+        {
+          id: 3,
+          name: "Caesar Salad",
+          price: 6.99,
+          image:
+            "https://public.readdy.ai/ai/img_res/8809080376c60b70e5820f78255c6150.jpg",
+          description: "Crisp romaine with classic dressing",
+        },
+        {
+          id: 4,
+          name: "Iced Coffee",
+          price: 3.99,
+          image:
+            "https://public.readdy.ai/ai/img_res/f9ed7c37c897f46ede8bf4865a01f6c8.jpg",
+          description: "Premium cold brew with cream",
+        },
+        {
+          id: 5,
+          name: "Chicken Wrap",
+          price: 8.99,
+          image:
+            "https://public.readdy.ai/ai/img_res/d4ba2b38b48cd8435e04de6da9ea2d22.jpg",
+          description: "Grilled chicken with fresh veggies",
+        },
+        {
+          id: 6,
+          name: "Fresh Smoothie",
+          price: 4.99,
+          image:
+            "https://public.readdy.ai/ai/img_res/c89bb315fc3b8e8512cfef3db2a99a3e.jpg",
+          description: "Blend of seasonal fruits",
+        },
+      ];
+
+      const cart = {
+        items: [],
+        total: 0,
+      };
+
+      function renderMenu() {
+        const container = document.getElementById("menuContainer");
+        container.innerHTML = menuItems
+          .map(
+            (item) => `
+                      <div class="menu-item relative bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                          <img src="${item.image}" class="w-full h-48 object-cover" alt="${item.name}">
+                          <div class="p-4">
+                              <div class="flex justify-between items-start mb-2">
+                                  <h3 class="font-medium text-gray-900">${item.name}</h3>
+                                  <span class="text-primary font-semibold">$${item.price}</span>
+                              </div>
+                              <p class="text-sm text-gray-500 mb-4">${item.description}</p>
+                              <button onclick="addToCart(${item.id})" class="w-full bg-primary text-white py-2 rounded-button font-medium hover:bg-primary/90 transition-colors">
+                                  Add to Cart
+                              </button>
+                          </div>
+                      </div>
+                  `,
+          )
+          .join("");
+      }
+
+      function addToCart(itemId) {
+        const item = menuItems.find((i) => i.id === itemId);
+        const existingItem = cart.items.find((i) => i.id === itemId);
+
+        if (existingItem) {
+          existingItem.quantity += 1;
+        } else {
+          cart.items.push({ ...item, quantity: 1 });
+        }
+
+        updateCart();
+      }
+
+      function updateCart() {
+        const cartItems = document.getElementById("cartItems");
+        const cartTotal = document.getElementById("cartTotal");
+
+        cart.total = cart.items.reduce(
+          (sum, item) => sum + item.price * item.quantity,
+          0,
+        );
+
+        cartItems.innerHTML = cart.items
+          .map(
+            (item) => `
+                      <div class="flex items-center gap-4 mb-4">
+                          <img src="${item.image}" class="w-20 h-20 object-cover rounded" alt="${item.name}">
+                          <div class="flex-1">
+                              <h4 class="font-medium text-gray-900">${item.name}</h4>
+                              <div class="flex items-center gap-2 mt-2">
+                                  <button onclick="updateQuantity(${item.id}, ${item.quantity - 1})" class="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100">-</button>
+                                  <span>${item.quantity}</span>
+                                  <button onclick="updateQuantity(${item.id}, ${item.quantity + 1})" class="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100">+</button>
+                              </div>
+                          </div>
+                          <div class="text-right">
+                              <div class="font-medium">$${(item.price * item.quantity).toFixed(2)}</div>
+                              <button onclick="removeFromCart(${item.id})" class="text-sm text-red-500">Remove</button>
+                          </div>
+                      </div>
+                  `,
+          )
+          .join("");
+
+        cartTotal.textContent = `$${cart.total.toFixed(2)}`;
+        document.querySelector("#cartBtn span").textContent = cart.items.reduce(
+          (sum, item) => sum + item.quantity,
+          0,
+        );
+      }
+
+      function updateQuantity(itemId, newQuantity) {
+        if (newQuantity < 1) {
+          removeFromCart(itemId);
+          return;
+        }
+
+        const item = cart.items.find((i) => i.id === itemId);
+        if (item) {
+          item.quantity = newQuantity;
+          updateCart();
+        }
+      }
+
+      function removeFromCart(itemId) {
+        cart.items = cart.items.filter((i) => i.id !== itemId);
+        updateCart();
+      }
+
+      document.getElementById("cartBtn").addEventListener("click", () => {
+        document.getElementById("cart").classList.toggle("translate-x-full");
+      });
+
+      document.getElementById("closeCart").addEventListener("click", () => {
+        document.getElementById("cart").classList.add("translate-x-full");
+      });
+
+      renderMenu();
+    </script>
+  </body>
+</html>
